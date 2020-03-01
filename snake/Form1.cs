@@ -11,12 +11,12 @@ using System.Windows.Forms;
 namespace snake
 {
 
-    
+
     public partial class Form1 : Form
     {
         private List<Circle> Snake = new List<Circle>();
         private Circle food = new Circle();
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -41,7 +41,7 @@ namespace snake
             Snake.Add(head);
             label1.Text = Settings.Score.ToString();
             GenerateFood();
-            
+
         }
 
         private void GenerateFood()
@@ -50,27 +50,17 @@ namespace snake
             int MaxYPos = pbCanvas.Size.Height / Settings.Height;
             Random random = new Random();
             food = new Circle();
-            food.x = random.Next(0, MaxXPos );
+            food.x = random.Next(0, MaxXPos);
             food.y = random.Next(0, MaxYPos);
-        }
-
-        private void UpdateScreen(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pbCanvasPrint(object sender, PaintEventArgs e)
-        {
-
         }
 
         private void MovePlayer()
         {
             for (int i = Snake.Count - 1; i >= 0; i--)
             {
-                if(i == 0)
+                if (i == 0)
                 {
-                    switch (Settings.Direction)
+                    switch (Settings.direction)
                     {
                         case Direction.Right:
                             Snake[i].x++;
@@ -92,32 +82,33 @@ namespace snake
                     int MaxXPos = pbCanvas.Size.Width / Settings.Width;
                     int MaxYPos = pbCanvas.Size.Height / Settings.Height;
 
-                    if(Snake[i].x < 0 || Snake[i].y < 0 || Snake[i].x >= MaxXPos || Snake[i].y >= MaxYPos)
+                    if (Snake[i].x < 0 || Snake[i].y < 0 || Snake[i].x >= MaxXPos || Snake[i].y >= MaxYPos)
                     {
-                        Die(); 
+                        Die();
                     }
 
                     for (int j = 1; j < Snake.Count; j++)
                     {
-                        if(Snake[i].x == Snake[j].x && Snake[i].y == Snake[j].y)
+                        if (Snake[i].x == Snake[j].x && Snake[i].y == Snake[j].y)
                         {
                             Die();
                         }
-                    }    
+                    }
 
-                    if(Snake[i].x == food.x && Snake[i].y == food.y)
+                    if (Snake[i].x == food.x && Snake[i].y == food.y)
                     {
                         Eat();
                     }
-                } else
+                }
+                else
                 {
                     Snake[i].x = Snake[i - 1].x;
                     Snake[i].y = Snake[i - 1].y;
                 }
 
-                        
+
             }
-           
+
         }
 
         private void Die()
@@ -144,8 +135,78 @@ namespace snake
 
         private void pbCanvasPaint(object sender, PaintEventArgs e)
         {
+            Graphics canvas = e.Graphics;
+            if (!Settings.GameOver)
+            {
+                Brush snakeColor;
+                for (int i = 0; i < Snake.Count; i++)
+                {
+                    if (i == 0)
+                        snakeColor = Brushes.Lime;
+                    else
+                        snakeColor = Brushes.Aquamarine;
+
+                    canvas.FillEllipse(snakeColor,
+                        new Rectangle(Snake[i].x * Settings.Width,
+                        Snake[i].y * Settings.Height,
+                        Settings.Width,
+                        Settings.Height));
+
+                    canvas.FillEllipse(Brushes.Cyan,
+                        new Rectangle(food.x * Settings.Width,
+                        food.y * Settings.Height,
+                        Settings.Width,
+                        Settings.Height));
+                }
+            }
+            else
+            {
+                string gameOver = "Game Over \n Your final skore is:" + Settings.Score + "\nPress Enter to try again";
+                lblGameOver.Text = gameOver;
+                lblGameOver.Visible = true;
+            };
+        }
+
+        private void Form1_KeUp(object sender, KeyEventArgs e)
+        {
+            Input.ChangeState(e.KeyCode, false);
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            Input.ChangeState(e.KeyCode, true);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
         }
+
+        private void UpdateScreen(object sender, EventArgs e)
+        {
+            if(Settings.GameOver)
+            {
+                if (Input.KeyPressed(Keys.Enter))
+                    StartGame();
+
+            }
+            else
+            {
+                if (Input.KeyPressed(Keys.Up) && Settings.direction != Direction.Down)
+                    Settings.direction = Direction.Up;
+                else if (Input.KeyPressed(Keys.Down) && Settings.direction != Direction.Up)
+                    Settings.direction = Direction.Down;
+                else if (Input.KeyPressed(Keys.Right) && Settings.direction != Direction.Left)
+                    Settings.direction = Direction.Right;
+                else if (Input.KeyPressed(Keys.Left) && Settings.direction != Direction.Right)
+                    Settings.direction = Direction.Left;
+
+                MovePlayer();
+
+            }
+            pbCanvas.Invalidate();
+        }
+
     }
 
 

@@ -14,17 +14,17 @@ namespace snake
         public static int Score;
         public static int Points;
         public static bool GameOver;
-        public static Direction Direction;
+        public static Direction direction;
 
       public Settings()
         {
             Width = 16;
             Height = 16;
-            Speed = 8;
+            Speed = 9;
             Score = 0;
             Points = 100;
             GameOver = false;
-            Direction = Direction.Down;
+            direction = Direction.Down;
         }
     }
     public enum Direction { 
